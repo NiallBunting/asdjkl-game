@@ -30,7 +30,7 @@ var asdjkl = {
 		//Draw
 		this.p_ctx.clearRect(0, 0, this.p_canvas.width, this.p_canvas.height);
 
-		this.p_player.draw();
+		this.p_player.draw(this.p_canvas, this.p_ctx);
 
 		//this.p_ctx.fillStyle = '#900';
 		//this.p_ctx.beginPath();
