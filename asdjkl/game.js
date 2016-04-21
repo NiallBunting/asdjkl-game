@@ -2,6 +2,7 @@ var asdjkl = {
 	p_canvas: 0,
 	p_ctx: 0,
 	p_player: null,
+	p_key: [],
 
 	init: function(){
 
@@ -9,9 +10,9 @@ var asdjkl = {
 		this.p_canvas = document.getElementById("asdjkl-canvas");
 		this.p_ctx = this.p_canvas.getContext("2d");
 
+		this.p_key = [];
 		//Initalise player
 		this.p_player = Player.create();
-
 		requestAnimationFrame(asdjkl.loop);
 	},
 
@@ -23,7 +24,7 @@ var asdjkl = {
 
 	update: function(){
 		//Do the calculations
-		this.p_player.update();
+		this.p_player.update(this.p_key);
 	},
 
 	draw: function(){
@@ -32,12 +33,17 @@ var asdjkl = {
 
 		this.p_player.draw(this.p_canvas, this.p_ctx);
 
-		//this.p_ctx.fillStyle = '#900';
-		//this.p_ctx.beginPath();
-		//this.p_ctx.moveTo(0, 100);
-		//this.p_ctx.lineTo(50, this.p_test);
-		//this.p_ctx.lineTo(100, 50);
-		//this.p_ctx.closePath();
-		//this.p_ctx.fill();
+	},
+
+	setKey: function(key, bool){
+		this.p_key[key] = bool;
 	}
 };
+
+
+document.onkeydown = document.onkeyup = function(e){
+	var e = e || event;
+	//key[e.keyCode] = e.type == 'keydown';
+
+	asdjkl.setKey(e.keyCode, e.type == 'keydown');
+}; 

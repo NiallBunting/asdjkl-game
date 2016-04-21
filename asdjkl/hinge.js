@@ -5,6 +5,7 @@ var Hinge = {
 	p_angleMin: 0,
 	p_angleMax: 0,
 	p_length: 0,
+	p_key: null,
 
 	create: function(x, y){
 		var obj = Object.create(this);
@@ -17,12 +18,17 @@ var Hinge = {
 		this.p_y = y;
 	},
 
-	update: function(){
+	update: function(key){
 		this.checkFloorCollision();
 		if(this.p_child != null){
 			var relativeX = this.p_child.getX() - this.p_x;
 			var relativeY = this.p_child.getY() - this.p_y;
 			var childAngle = Math.round(Math.atan2(relativeY, relativeX) * 100)/100;
+			if(key != null && key[this.p_key]){
+				childAngle += 0.1;
+			}else{
+				childAngle -= 0.01;
+			}
 			if (childAngle < 0){ childAngle += 2 * Math.PI; }
 
 			if(childAngle < this.p_angleMin){
@@ -38,7 +44,7 @@ var Hinge = {
 			this.p_child.p_x = childX;
 			this.p_child.p_y = childY;
 
-			this.p_child.update();
+			this.p_child.update(key);
 
 			var relativeX =  this.p_x - this.p_child.getX();
 			var relativeY =  this.p_y - this.p_child.getY();
@@ -107,10 +113,11 @@ var Hinge = {
 			return this.p_y + (Math.sin(angle) * length);
 	},
 
-	addChild: function(angleMin, angleMax, length){
+	addChild: function(angleMin, angleMax, length, moveKey){
 		if(this.p_child == null){
 			var angleAvg = (angleMin + angleMax) / 2.0;
 			var child = Hinge.create(this.getEndX(angleAvg, length), this.getEndY(angleAvg, length));
+			child.setKey(moveKey);
 			this.p_child = child;
 			this.p_angleMin = angleMin;
 			this.p_angleMax = angleMax;
@@ -118,5 +125,9 @@ var Hinge = {
 			return child;
 		}
 		return null;
+	},
+	
+	setKey: function(key){
+		if(key != null){this.p_key = key;}
 	}
 }
