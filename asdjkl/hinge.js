@@ -6,6 +6,8 @@ var Hinge = {
 	p_angleMax: 0,
 	p_length: 0,
 	p_key: null,
+	p_mx: 0,
+	p_my: 0,
 
 	create: function(x, y){
 		var obj = Object.create(this);
@@ -20,17 +22,16 @@ var Hinge = {
 
 	update: function(key){
 		this.checkFloorCollision();
+		this.applyMomentum();
 		if(this.p_child != null){
+			//Calculate the angle of the child
 			var relativeX = this.p_child.getX() - this.p_x;
 			var relativeY = this.p_child.getY() - this.p_y;
 			var childAngle = Math.round(Math.atan2(relativeY, relativeX) * 100)/100;
-			if(key != null && key[this.p_key]){
-				childAngle += 0.1;
-			}else{
-				childAngle -= 0.01;
-			}
+			childAngle = this.moveChild(key, childAngle);
+			//Normalise
 			if (childAngle < 0){ childAngle += 2 * Math.PI; }
-
+			//Check if in the bounds
 			if(childAngle < this.p_angleMin){
 				childAngle = this.p_angleMin;
 			}
@@ -38,22 +39,30 @@ var Hinge = {
 			if(childAngle > this.p_angleMax){
 				childAngle = this.p_angleMax;
 			}
-
+			var childFriction = this.p_child.checkFloorCollision();
+			// Calculate the position of the child
 			var childX = this.getEndX(childAngle, this.p_length);
 			var childY = this.getEndY(childAngle, this.p_length);
-			this.p_child.p_x = childX;
+			if(childFriction){
+				this.p_child.p_x = ((this.p_child.p_x * 2) + childX) / 3;
+			}else{this.p_child.p_x = childX;}
 			this.p_child.p_y = childY;
 
+			// Update child
 			this.p_child.update(key);
 
-			var relativeX =  this.p_x - this.p_child.getX();
-			var relativeY =  this.p_y - this.p_child.getY();
-			var Angle = Math.round(Math.atan2(relativeY, relativeX) * 100)/100;
-			if (Angle < 0){ Angle += 2 * Math.PI; }
-			
+			// Get child distance	
 			var dist = Math.sqrt(Math.pow((this.p_x - this.p_child.p_x), 2) + Math.pow((this.p_y - this.p_child.p_y), 2));
 
 			if(this.p_length - 1 > dist || this.p_length + 1 < dist){
+				
+				// Get childs angle from parent
+				var relativeX =  this.p_x - this.p_child.getX();
+				var relativeY =  this.p_y - this.p_child.getY();
+				var Angle = Math.round(Math.atan2(relativeY, relativeX) * 100)/100;
+				if (Angle < 0){ Angle += 2 * Math.PI; }
+
+				// If more than 1 off set parents position again
 				this.p_x = this.p_child.getX() + (Math.cos(Angle) * this.p_length);
 				this.p_y = this.p_child.getY() + (Math.sin(Angle) * this.p_length);
 			}
@@ -62,7 +71,6 @@ var Hinge = {
 
 		}
 		else{
-			this.p_y += 1.5;
 			if(this.p_y < 0 || this.p_y > 400){this.p_y = Math.random() * 400};
 			if(this.p_x < 0 || this.p_x > 400){this.p_x = Math.random() * 400};
 		}
@@ -129,5 +137,29 @@ var Hinge = {
 	
 	setKey: function(key){
 		if(key != null){this.p_key = key;}
+	},
+
+	moveChild: function(key, angle){	
+		if(key != null && key[this.p_key]){
+			angle += 0.1;
+		}else{
+			angle -= 0.01;
+		}
+		return angle;
+	},	
+
+	applyMomentum: function(){
+		// add gravity
+		this.p_my += 0.01;
+
+		//y
+		var grav = Math.pow(this.p_my, 2) / 10;
+		grav = grav > 1 ? 1 : grav; 
+
+		//x
+
+		//add
+		this.p_y += grav;
+		//this.p_x += grav;
 	}
 }
