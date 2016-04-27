@@ -8,6 +8,7 @@ var Hinge = {
 	p_key: null,
 	p_mx: 0,
 	p_my: 0,
+	p_movedir: 1,
 
 	create: function(x, y){
 		var obj = Object.create(this);
@@ -39,13 +40,12 @@ var Hinge = {
 			if(childAngle > this.p_angleMax){
 				childAngle = this.p_angleMax;
 			}
-			var childFriction = this.p_child.checkFloorCollision();
+
 			// Calculate the position of the child
 			var childX = this.getEndX(childAngle, this.p_length);
 			var childY = this.getEndY(childAngle, this.p_length);
-			if(childFriction){
-				this.p_child.p_x = ((this.p_child.p_x * 2) + childX) / 3;
-			}else{this.p_child.p_x = childX;}
+
+			this.p_child.p_x = childX;
 			this.p_child.p_y = childY;
 
 			// Update child
@@ -55,7 +55,7 @@ var Hinge = {
 			var dist = Math.sqrt(Math.pow((this.p_x - this.p_child.p_x), 2) + Math.pow((this.p_y - this.p_child.p_y), 2));
 
 			if(this.p_length - 1 > dist || this.p_length + 1 < dist){
-				
+
 				// Get childs angle from parent
 				var relativeX =  this.p_x - this.p_child.getX();
 				var relativeY =  this.p_y - this.p_child.getY();
@@ -134,19 +134,19 @@ var Hinge = {
 		}
 		return null;
 	},
-	
+
 	setKey: function(key){
 		if(key != null){this.p_key = key;}
 	},
 
-	moveChild: function(key, angle){	
+	moveChild: function(key, angle){
 		if(key != null && key[this.p_key]){
-			angle += 0.1;
+			angle += 0.1 * this.p_movedir;
 		}else{
-			angle -= 0.01;
+			angle -= 0.01 * this.p_movedir;
 		}
 		return angle;
-	},	
+	},
 
 	applyMomentum: function(){
 		// add gravity
@@ -154,7 +154,7 @@ var Hinge = {
 
 		//y
 		var grav = Math.pow(this.p_my, 2) / 10;
-		grav = grav > 1 ? 1 : grav; 
+		grav = grav > 1 ? 1 : grav;
 
 		//x
 
