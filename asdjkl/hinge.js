@@ -28,12 +28,13 @@ var Hinge = {
 		this.p_my += my;
 		//checkifkeyispressed
 		//if yes create momentum on that angle
+		var constrain;
 		if(this.hasChild()){
-			this.constrainLength(this, this.p_child, this.p_length);
+			constrain = this.calConstrainLength(this, this.p_child, this.p_length);
 		}
 		//update child
 		if(this.hasChild()){
-			var returnMo = this.p_child.update(key, 0, 0);
+			var returnMo = this.p_child.update(key, constrain.x, constrain.y);
 		}
 		//calculate any other momentum
 		//add momentum to x + y
@@ -112,11 +113,11 @@ var Hinge = {
 		//this.p_my -= 0.1;
 	},
 
-	constrainLength: function(a, b, len){
+	calConstrainLength: function(a, b, len){
 
 		var calLength = Math.sqrt(Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2));
 
-		if(calLength == 0){calLength = 1;}
+		if(calLength == 0){calLength = len;}
 
 		var difference = len / calLength;
 
@@ -126,7 +127,6 @@ var Hinge = {
 		var yLen = a.getY() - b.getY();
 		var yNew = (yLen * difference) - yLen;
 
-		this.p_child.p_mx -= xNew;
-		this.p_child.p_my -= yNew;
+		return {'x': -xNew, 'y': -yNew};
 	}
 }
